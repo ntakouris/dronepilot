@@ -1,0 +1,26 @@
+# I'm using an FS-i6
+# The plan here is to emulate a IA6B Receiver
+
+IBUS_MAX_CHANNEL = 14
+IBUS_BUFFSIZE = 32
+IBUS_MODEL_IA6B = 0
+IBUS_MODEL_IA6 = 1
+IBUS_FRAME_GAP = 500
+
+IBUS_BAUDRATE = 115200
+IBUS_TELEMETRY_PACKET_LENGTH = 4
+IBUS_SERIAL_RX_PACKET_LENGTH = 32
+
+IBUS_CHANNEL_OFFSET = 2
+
+IBUS_CHECKSUM = 0xFFFF
+IBUS_CHECKSUM_SIZE = 2
+
+## Data frame spec:
+#
+
+
+## Checksums:
+#
+
+##TODO: Check inverted UART
