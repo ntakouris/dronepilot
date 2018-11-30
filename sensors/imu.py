@@ -1,15 +1,14 @@
 from sensors.base import Sensor
 
 
-class Ultrasonic(Sensor):
-    def __init__(self, trig, echo):
-        self.trig = trig
-        self.echo = echo
-        """TODO: Initialize pins"""
+class IMU(Sensor):
+
+    def __init__(self, scl, sda):
+        self.scl = scl
+        self.sda = sda
 
     def poll_measure(self):
-        """TODO: Send pulse and wait for response with timeout"""
-
+        """TODO: Add I2C Communication with some timeout"""
         self.measure_lock.acquire()
 
         self.measure_lock.release()

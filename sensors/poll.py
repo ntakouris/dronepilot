@@ -1,15 +1,12 @@
 import threading
 from threading import Thread
 
-import serial
 import time
-
-from sensors.accelerometer import Accelerometer
 
 ''' Poll serially sensor list ordered ascending by their measurement delay'''
 
 
-def serial_poll(sensors, measure_tick_event, kill_event):
+def poll_sequential_smart(sensors, measure_tick_event, kill_event):
     sensors.sort(key=lambda e: e.get_delay_between_measurements)
 
     measure_time_map = {}
@@ -37,12 +34,12 @@ def serial_poll(sensors, measure_tick_event, kill_event):
 '''Poll all sensors in different threads, in parallel'''
 
 
-def parallel_poll(sensors, measure_tick_event, kill_event):
-    def _poll(sensor, completed_event):
+def poll_parallel(sensors, measure_tick_event, kill_event):
+    def _poll(_sensor, completed_event):
         while not kill_event.is_set():
-            sensor.poll_measure()
+            _sensor.poll_measure()
             completed_event.set()
-            time.sleep(sensor.get_delay_between_measurements())
+            time.sleep(_sensor.get_delay_between_measurements())
 
     time_wait_quantum = min(sensors, lambda s: s.get_delay_between_measurements())
 
@@ -51,7 +48,7 @@ def parallel_poll(sensors, measure_tick_event, kill_event):
 
     for sensor in sensors:
         e = threading.Event()
-        t = Thread(target=_poll(sensor, e))
+        t = Thread(target=_poll, args=(sensor, e))
         events.append(e)
         threads.append(t)
 
@@ -68,29 +65,17 @@ def parallel_poll(sensors, measure_tick_event, kill_event):
         print(f'Parallel poll ended at: {time.time()}')
         measure_tick_event.set()
 
+    [t.join() for t in threads]
 
-def main():
-    print('Initialize sensors...')
-    accelerometer = Accelerometer(serial.Serial('/dev/ttyS1', 19200, 1))
 
-    sensors = [accelerometer]
+''' Poll in a for loop'''
 
-    print('Press any key to cancel measurement loop')
 
-    time.sleep(2)
-
-    try:
-        while True:
-            print('============================')
-            for sensor in sensors:
-                print(f'Polling {type(sensor).__name__}')
-                sensor.poll_measure()
-                print(f'Ended at: {time.time()}')
-    except KeyboardInterrupt:
+def poll_sequential_dumb(sensors, measure_tick_event, kill_event):
+    while not kill_event.is_set():
         for sensor in sensors:
-            sensor.dispose()
-        pass
+            print(f'Polling {type(sensor).__name__}')
+            sensor.poll_measure()
+            print(f'Poll ended at: {time.time()}')
+        measure_tick_event.set()
 
-
-if __name__ == '__main__':
-    main()
