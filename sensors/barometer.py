@@ -1,25 +1,25 @@
 from sensors.base import Sensor
+import busio
+import adafruit_bmp280
 
 
 class Barometer(Sensor):
 
-    def __init__(self, scl, sda, i2c_lock):
+    def __init__(self, scl, sda, i2c_lock, sea_level_pressure):
         self.scl = scl
         self.sda = sda
-        self.spi_lock = i2c_lock
+        self.i2c_lock = i2c_lock
+        i2c = busio.I2C(scl, sda)
+        self._sensor = adafruit_bmp280.Adafruit_BMP280_I2C(i2c)
+        self._sensor.sea_level_pressure = sea_level_pressure
 
     def poll_measure(self):
-        """TODO: Add I2C Communication with some timeout"""
         self.i2c_lock.acquire()
-
+        val = (self._sensor.altitude)
         self.i2c_lock.release()
 
         self.measure_lock.acquire()
-
+        self.values = val
         self.measure_lock.release()
+        print(f'Altitude measured: {val}')
 
-    def read_values(self):
-        self.measure_lock.acquire()
-        ret = self.values.copy()
-        self.measure_lock.release()
-        return ret

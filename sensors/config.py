@@ -4,15 +4,18 @@ from sensors.barometer import Barometer
 from sensors.gps import GPS
 from sensors.imu import IMU
 from sensors.ultrasonic import Ultrasonic
+import board
 
 '''Production configuration -- for bench testing look at poll.py'''
 """TODO: Finish wiring"""
 
 '''Same I2C Bus for IMU and Barometer'''
-IMU_SCL = 0
-IMU_SDA = 0
+IMU_SCL = board.SCL
+IMU_SDA = board.SDA
+
 BAROMETER_SCL = IMU_SCL
 BAROMETER_SDA = IMU_SDA
+BAROMETER_SEA_LEVEL_PRESSURE = 1013.25  # hPa
 
 ULTRASONIC_TRIG = 0
 ULTRASONIC_ECHO = 0
@@ -25,7 +28,7 @@ def get_imu():
 
 
 def get_barometer():
-    return Barometer(BAROMETER_SCL, BAROMETER_SDA, I2C_LOCK)
+    return Barometer(BAROMETER_SCL, BAROMETER_SDA, I2C_LOCK, BAROMETER_SEA_LEVEL_PRESSURE)
 
 
 def get_gps():

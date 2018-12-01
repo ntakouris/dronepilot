@@ -1,9 +1,10 @@
 from threading import Lock
+from copy import deepcopy
 
 
 class Sensor:
     measure_lock = Lock()
-    values = {}
+    values = ()
 
     def get_delay_between_measurements(self):
         return 0
@@ -15,4 +16,7 @@ class Sensor:
         return
 
     def read_values(self):
-        return
+        self.measure_lock.acquire()
+        ret = deepcopy(self.values)
+        self.measure_lock.release()
+        return ret
