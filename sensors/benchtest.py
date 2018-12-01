@@ -2,7 +2,7 @@ from threading import Thread
 
 from sensors.config import *
 import time
-
+import sys
 
 def test_poll_all_values():
     sensors = get_sensors()
@@ -73,5 +73,46 @@ def test_poll_sequential_smart():
         pass
 
 
+def test_poll_parallel():
+    return
+
+def test_poll(sensor):
+    print('Press any key to cancel barometer poll measurement loop')
+
+    time.sleep(2)
+
+    try:
+        while True:
+            start = time.time()
+            sensor.poll_measure()
+            print(f'{type(sensor).__name__} poll took {(time.time() - start)} ms')
+    except KeyboardInterrupt:
+        sensor.dispose()
+        pass
+
+
+def test_poll_barometer():
+    test_poll(get_barometer())
+
+
 if __name__ == '__main__':
+    if sys.argv[1] == 'test':
+        arg = sys.argv[2]
+
+        if arg == 'baro' or arg == 'barometer':
+            test_poll(get_barometer())
+        elif arg == 'gps':
+            test_poll(get_gps())
+        elif arg == 'imu':
+            test_poll(get_imu())
+        elif arg == 'ultra' or arg == 'ultrasonic':
+            test_poll(get_ultrasonic())
+        elif arg == 'seq-smart' or 'sequential-smart':
+            test_poll_sequential_smart()
+        elif arg == 'par' or 'parallel':
+            test_poll_parallel()
+        elif arg == 'all' or arg == '*':
+            test_poll_all_values()
+        else:
+            print(f'Unknown test target: {arg}')
     test_poll_all_values()
