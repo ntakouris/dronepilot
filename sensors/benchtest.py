@@ -4,6 +4,9 @@ from sensors.config import *
 import time
 import sys
 
+from sensors.poll import *
+
+
 def test_poll_all_values():
     sensors = get_sensors()
 
@@ -34,14 +37,15 @@ def test_poll_all_values():
         pass
 
 
+def _measure_listener(_measure_event, _kill_event):
+    _now = time.time()
+    while not _kill_event.is_set():
+        if not _measure_event.wait(1):
+            _measure_event.clear()
+            print(f'All sensors measured after: {(time.time() - _now) / 1000} ms')
+            _now = time.time()
+
 def test_poll_sequential_smart():
-    def measure_listener(_measure_event, _kill_event):
-        _now = time.time()
-        while not _kill_event.is_set():
-            if not _measure_event.wait(1):
-                _measure_event.clear()
-                print(f'All sensors measured after: {(time.time() - _now) / 1000} ms')
-                _now = time.time()
 
     sensors = get_sensors()
 
@@ -52,8 +56,8 @@ def test_poll_sequential_smart():
     kill_event = threading.Event()
     measure_event = threading.Event()
 
-    poller = Thread(target=test_poll_sequential_smart, args=(sensors, measure_event, kill_event))
-    listener = Thread(target=measure_listener, args=(measure_event, kill_event))
+    poller = Thread(target=poll_sequential_smart, args=(sensors, measure_event, kill_event))
+    listener = Thread(target=_measure_listener, args=(measure_event, kill_event))
 
     try:
         poller.start()
@@ -74,7 +78,35 @@ def test_poll_sequential_smart():
 
 
 def test_poll_parallel():
-    return
+    sensors = get_sensors()
+
+    print('Press any key to cancel poll sequential smart values measurement loop')
+
+    time.sleep(2)
+
+    kill_event = threading.Event()
+    measure_event = threading.Event()
+
+    poller = Thread(target=poll_parallel, args=(sensors, measure_event, kill_event))
+    listener = Thread(target=_measure_listener, args=(measure_event, kill_event))
+
+    try:
+        poller.start()
+        listener.start()
+
+        while True:
+            """"Busy wait"""
+            time.sleep(0.3)
+    except KeyboardInterrupt:
+        print('Setting kill event')
+        kill_event.set()
+        print('Joining threads')
+        poller.join()
+        listener.join()
+
+        [s.dispose() for s in sensors]
+        pass
+
 
 def test_poll(sensor):
     print('Press any key to cancel barometer poll measurement loop')
