@@ -1,3 +1,5 @@
+import threading
+
 from sensors.barometer import Barometer
 from sensors.gps import GPS
 from sensors.imu import IMU
@@ -15,13 +17,15 @@ BAROMETER_SDA = IMU_SDA
 ULTRASONIC_TRIG = 0
 ULTRASONIC_ECHO = 0
 
+I2C_LOCK = threading.Lock()
+
 
 def get_imu():
-    return IMU(IMU_SCL, IMU_SDA)
+    return IMU(IMU_SCL, IMU_SDA, I2C_LOCK)
 
 
 def get_barometer():
-    return Barometer(BAROMETER_SCL, BAROMETER_SDA)
+    return Barometer(BAROMETER_SCL, BAROMETER_SDA, I2C_LOCK)
 
 
 def get_gps():
