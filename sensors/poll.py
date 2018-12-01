@@ -23,7 +23,7 @@ def poll_sequential_smart(sensors, measure_tick_event, kill_event):
             diff = now - last_measure
 
             if diff < sensor.get_delay_between_measurements():
-                time.sleep(sensor.get_delay_between_measurements() - diff)
+                time.sleep((sensor.get_delay_between_measurements() - diff) / 1000)
 
             print(f'Polling {type(sensor).__name__}')
             sensor.poll_measure()
@@ -39,7 +39,7 @@ def poll_parallel(sensors, measure_tick_event, kill_event):
         while not kill_event.is_set():
             _sensor.poll_measure()
             completed_event.set()
-            time.sleep(_sensor.get_delay_between_measurements())
+            time.sleep(_sensor.get_delay_between_measurements() / 1000)
 
     time_wait_quantum = min(sensors, lambda s: s.get_delay_between_measurements())
 
