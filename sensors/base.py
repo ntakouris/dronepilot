@@ -3,8 +3,8 @@ from copy import deepcopy
 
 
 class Sensor:
-    measure_lock = Lock()
-    values = ()
+    _measure_lock = Lock()
+    _values = ()
 
     def get_delay_between_measurements(self):
         return 0
@@ -16,7 +16,7 @@ class Sensor:
         return
 
     def read_values(self):
-        self.measure_lock.acquire()
-        ret = deepcopy(self.values)
-        self.measure_lock.release()
+        self._measure_lock.acquire()
+        ret = deepcopy(self._values)
+        self._measure_lock.release()
         return ret
