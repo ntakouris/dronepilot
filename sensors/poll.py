@@ -33,6 +33,9 @@ def poll_sequential_smart(sensors, measure_tick_event, kill_event):
             sensor.poll_measure()
             print(f'Poll ended')
         print(f'Finished polling after {(time.time() - start) / 1000} ms')
+
+        measure_tick_event.values = dict((type(s).__name__, s.read_values()) for s in sensors)
+
         measure_tick_event.set()
 
 
@@ -75,6 +78,9 @@ def poll_parallel(sensors, measure_tick_event, kill_event):
         [_set_and_clear(e) for e in events]
         print(f'Parallel poll ended after: {(time.time() - now) / 1000} ms')
         now = time.time()
+
+        measure_tick_event.values = dict((type(s).__name__, s.read_values()) for s in sensors)
+
         measure_tick_event.set()
 
     [t.join() for t in threads]
@@ -86,11 +92,13 @@ def poll_parallel(sensors, measure_tick_event, kill_event):
 def poll_sequential_dumb(sensors, measure_tick_event, kill_event):
     while not kill_event.is_set():
         start = time.time()
+
         for sensor in sensors:
             print(f'Polling {type(sensor).__name__}')
             _start = time.time()
             sensor.poll_measure()
             print(f'Poll ended after: {(time.time() - start) / 1000} ms')
+
         measure_tick_event.set()
         print(f'Polled all sensors after {(time.time() - start) / 1000} ms')
         start = time.time()

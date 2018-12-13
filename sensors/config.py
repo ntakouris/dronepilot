@@ -31,6 +31,8 @@ I2C_LOCK = threading.Lock()
 GPS_SERIAL = '/dev/ttyACM0'
 GPS_RATE = 9600
 
+MAGNETIC_FIELD_OFFSET = (0, 0, 0)
+
 
 def init_gpio():
     GPIO.setmode(GPIO.BOARD)
