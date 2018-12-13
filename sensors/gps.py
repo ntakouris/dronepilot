@@ -3,12 +3,14 @@ import serial
 
 
 class GPS(Sensor):
-    """TODO: Figure out SPI wiring params"""
 
     def __init__(self, serial_port, rate):
         self._ser = serial.Serial(serial_port, rate)
-
+        """TODO: Add 5Hz update rate, add gps lat lng parser"""
         return
+
+    def wait_for_satellite(self):
+        print('Waiting for satellite lock')
 
     def poll_measure(self):
         data = self._ser.read(32)
@@ -27,5 +29,4 @@ class GPS(Sensor):
         self._ser.close()
 
     def get_delay_between_measurements(self):
-        """TODO: Calculate based on baud rate"""
-        return 2
+        return 200
